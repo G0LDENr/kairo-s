@@ -2,36 +2,34 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from database.config import users_col
+from database.config import estilistas_col
 from faker import Faker
-from datetime import datetime
 import random
-from auth.authentication import hash_password  # Importar la función de hashing
+from tqdm import tqdm
 
 fake = Faker("es_MX")
+apellidos = ["García", "López", "Martínez", "Hernández", "Pérez", "Sánchez", "Ramírez", "Cruz", "Flores", "Gómez"]
 
-sexos = ["M", "F"]
-dominios = ["gmail.com", "hotmail.com"]
+def generar_estilistas_masivo(cantidad=100):
+    print(f"🚀 Generando {cantidad} estilistas...")
+    estilistas_col.delete_many({})  # Opcional: limpia la colección antes de insertar
 
-usuarios = []
+    docs = []
+    batch_size = 100
+    for i in tqdm(range(cantidad), desc="Creando estilistas"):
+        nombre_completo = f"{fake.first_name()} {random.choice(apellidos)}"
+        telefono = fake.msisdn()[:10]
+        docs.append({
+            "nombre": nombre_completo,
+            "telefono": telefono,
+            "horarios": {}
+        })
+        if len(docs) >= batch_size:
+            estilistas_col.insert_many(docs)
+            docs = []
+    if docs:
+        estilistas_col.insert_many(docs)
+    print(f"✅ {cantidad} estilistas insertados correctamente.")
 
-for _ in range(5000):
-    nombre_completo = f"{fake.first_name()} {fake.last_name()} {fake.last_name()}"
-    correo = f"{fake.user_name()}{random.randint(100,999)}@{random.choice(dominios)}"
-    telefono = fake.msisdn()[:10]
-    contraseña_plana = fake.password(length=10)
-    contraseña_hash = hash_password(contraseña_plana)  # Hashear la contraseña
-    
-    usuario = {
-        "nombre": nombre_completo,
-        "correo": correo,
-        "contraseña": contraseña_hash,  # Guardar el hash en lugar del texto plano
-        "telefono": telefono,
-        "sexo": random.choice(sexos),
-        "role": "cliente",
-        "fecha_registro": datetime.now()
-    }
-    usuarios.append(usuario)
-
-users_col.insert_many(usuarios)
-print("✅ 5000 usuarios de prueba insertados correctamente.")
+if __name__ == "__main__":
+    generar_estilistas_masivo(100)
