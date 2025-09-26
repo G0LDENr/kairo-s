@@ -3,7 +3,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from database.config import users_col
-from auth.authentication import hash_password  # Importar la función de hashing
+# Removemos la importación de hash_password
 from faker import Faker
 from datetime import datetime
 import random
@@ -15,8 +15,8 @@ sexos = ["M", "F"]
 dominios = ["gmail.com", "hotmail.com"]
 
 def generar_usuarios_masivo(cantidad=5000):
-    """Genera usuarios de prueba con contraseñas ya encriptadas"""
-    print(f"🚀 Generando {cantidad} usuarios con contraseñas encriptadas...")
+    """Genera usuarios de prueba con contraseñas en texto plano"""
+    print(f"🚀 Generando {cantidad} usuarios con contraseñas en texto plano...")
     
     usuarios = []
     batch_size = 1000  # Insertar en lotes para mejor rendimiento
@@ -28,13 +28,11 @@ def generar_usuarios_masivo(cantidad=5000):
         telefono = fake.msisdn()[:10]
         contraseña_plana = fake.password(length=10)
         
-        # ¡ENCRIPTAR LA CONTRASEÑA ANTES de insertar!
-        contraseña_hash = hash_password(contraseña_plana)
-        
+        # CONTRASEÑA EN TEXTO PLANO (sin encriptar)
         usuario = {
             "nombre": nombre_completo,
             "correo": correo,
-            "contraseña": contraseña_hash,  # Ya encriptada
+            "contraseña": contraseña_plana,  # Texto plano
             "telefono": telefono,
             "sexo": random.choice(sexos),
             "role": "cliente",
@@ -51,7 +49,7 @@ def generar_usuarios_masivo(cantidad=5000):
     if usuarios:
         users_col.insert_many(usuarios)
     
-    print(f"✅ {cantidad} usuarios creados con contraseñas encriptadas correctamente.")
+    print(f"✅ {cantidad} usuarios creados con contraseñas en texto plano correctamente.")
 
 if __name__ == "__main__":
-    generar_usuarios_masivo(5000)
+    generar_usuarios_masivo(995000)

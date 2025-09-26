@@ -5,6 +5,7 @@ from admin.stylist_management import crear_pestaña_estilistas
 from admin.service_management import crear_pestaña_servicios
 from admin.appointment_management import crear_pestaña_citas
 from admin.message_management import crear_panel_mensajes
+from admin.estadistic_management import crear_pestaña_estadisticas
 
 def open_admin_panel(user, login_callback):
     admin_win = tk.Toplevel()
@@ -74,6 +75,10 @@ def open_admin_panel(user, login_callback):
     message_section = crear_panel_mensajes(container)
     sections["mensajes"] = message_section
     
+    # Crear sección de estadísticas
+    stats_section = crear_pestaña_estadisticas(container, admin_win)
+    sections["estadisticas"] = stats_section
+    
     # Ocultar todas las secciones inicialmente
     for section in sections.values():
         section.pack_forget()
@@ -94,6 +99,7 @@ def open_admin_panel(user, login_callback):
         ("Servicios", lambda: show_section("servicios")),
         ("Citas", lambda: show_section("citas")),
         ("Mensajes", lambda: show_section("mensajes")),
+        ("Estadisticas", lambda: show_section("estadisticas")),
         ("", None),
         ("Cerrar Sesión", lambda: cerrar_sesion(admin_win, login_callback))
     ]
